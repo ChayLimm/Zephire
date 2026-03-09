@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Sidebar from './Sidebar'
 
+const PUBLIC_ROUTES = ['/login', '/apply']
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -11,24 +13,40 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
-    if (!token && pathname !== '/login') {
-      router.push('/login')
-    } else {
+    const isPublic = PUBLIC_ROUTES.includes(pathname)
+
+    if (isPublic) {
+      // Already logged in + trying to visit /login → redirect to app
+      if (token && pathname === '/login') {
+        router.replace('/candidates')
+        return
+      }
       setAuthenticated(!!token)
       setChecked(true)
+      return
     }
-  }, [pathname, router])
 
-  // ✅ Don't flash anything while checking
+    // Protected route — no token → go to login
+    if (!token) {
+      router.replace('/login')
+      return
+    }
+
+    setAuthenticated(true)
+    setChecked(true)
+  }, [pathname])
+
   if (!checked) return null
 
-  const isLogin = pathname === '/login'
+  const isPublic = PUBLIC_ROUTES.includes(pathname)
 
-  // ✅ If not authenticated and not on login, don't render
-  if (!authenticated && !isLogin) return null
+  // ✅ Public pages — no sidebar, no auth required
+  if (isPublic) return <>{children}</>
 
-  if (isLogin) return <>{children}</>
+  // ✅ Not authenticated on protected route — render nothing
+  if (!authenticated) return null
 
+  // ✅ Authenticated — show sidebar
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

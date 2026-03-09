@@ -34,22 +34,20 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="p-6 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-        <div
+        {/* <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{ background: 'linear-gradient(135deg, #1e6ddb, #4f9ef8)' }}
         >
           <Sparkles size={18} className="text-white" />
-        </div>
+        </div> */}
         <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Sora, sans-serif', color: '#0F1729' }}>
-          HR<span style={{ color: '#1e6ddb' }}>.AI</span>
+          Sok<span style={{ color: '#1e6ddb' }}>.Hr</span>
         </span>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 space-y-1">
-        <p className="text-xs font-semibold px-3 mb-3" style={{ color: '#9BAABF', letterSpacing: '0.08em' }}>
-          NAVIGATION
-        </p>
+     
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname.startsWith(href)
           return (

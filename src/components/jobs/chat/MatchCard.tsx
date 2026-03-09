@@ -1,10 +1,17 @@
-import { AlertCircle, CheckCircle } from "lucide-react";
-import { useState } from "react";
-import Avatar from "../../ui/Avatar";
-import { ScoreBadge } from "../../ui/Badge";
+'use client'
+import { AlertCircle, CheckCircle } from "lucide-react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAppDispatch } from "@/store/hooks"
+import { setSelectedCandidate } from "@/store/slices/candidatesSlice"
+import Avatar from "@/components/ui/Avatar"
+import { ScoreBadge } from "@/components/ui/Badge"
 
 export default function MatchCard({ result: r, rank }: { result: any; rank: number }) {
   const [expanded, setExpanded] = useState(false)
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+
   const score = r.match_score ?? r.matchScore ?? 0
   const scoreColor = score >= 80 ? '#22C55E' : score >= 60 ? '#F59E0B' : '#EF4444'
 
@@ -25,15 +32,35 @@ export default function MatchCard({ result: r, rank }: { result: any; rank: numb
   const name = r.candidate_name || r.candidateName || 'Unknown'
   const position = r.candidate_position || r.candidatePosition || ''
 
+  const handleCardClick = () => setExpanded(!expanded)
+
+  const handleNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // prevent expanding card
+    if (!r.candidateId && !r.candidate_id) return
+    const candidateId = r.candidateId || r.candidate_id
+    dispatch(setSelectedCandidate(r))
+    router.push(`/candidates/${candidateId}`)
+  }
+
   return (
-    <div className="card p-3.5 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+    <div className="card p-3.5 cursor-pointer" onClick={handleCardClick}>
       <div className="flex items-center gap-2.5">
         <span className="text-xs font-bold w-4" style={{ color: '#9BAABF' }}>#{rank}</span>
-        <Avatar name={name} size={34} />
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-xs" style={{ color: '#0F1729' }}>{name}</p>
-          <p className="text-xs" style={{ color: '#6B7A99' }}>{position}</p>
+
+        {/* Clickable avatar + name → goes to candidate detail */}
+        <div className="flex items-center gap-2.5 flex-1 min-w-0"
+          onClick={handleNameClick}
+          title="View candidate profile">
+          <Avatar name={name} size={34} />
+          <div className="min-w-0">
+            <p className="font-semibold text-xs hover:underline"
+              style={{ color: '#0F1729', textDecorationColor: '#1e6ddb' }}>
+              {name}
+            </p>
+            <p className="text-xs" style={{ color: '#6B7A99' }}>{position}</p>
+          </div>
         </div>
+
         <ScoreBadge score={score} />
       </div>
 

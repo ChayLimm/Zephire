@@ -5,7 +5,7 @@ import ToastContainer from '@/components/ui/ToastContainer'
 import AuthGuard from '@/components/AuthGuard'
 
 export const metadata: Metadata = {
-  title: 'HR.AI — Smart Candidate Management',
+  title: 'Som — Smart Candidate Management',
   description: 'AI-powered HR assistant',
 }
 

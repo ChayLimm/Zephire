@@ -1,24 +1,26 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Upload, Search, Filter, Trash2, Eye, FileText, X, Loader2, Plus } from 'lucide-react'
+import { Upload, Search, Filter, Trash2, Eye, FileText, X, Loader2, Plus, Clock, CheckCircle, XCircle, Users } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
-  fetchCandidates, removeCandidate, uploadCandidate, updateCandidate,
+  fetchCandidates, removeCandidate, uploadCandidate,
   selectFilteredCandidates, selectCandidatesLoading,
   selectCandidatesError, setFilters, clearError,
-  selectCandidatesFilters,
-  setSelectedCandidate,
+  selectCandidatesFilters, setSelectedCandidate,
 } from '@/store/slices/candidatesSlice'
 import { openModal, closeModal, selectActiveModal, selectModalPayload } from '@/store/slices/uiSlice'
 import { SkeletonList } from '@/components/ui/Skeleton'
 import Avatar from '@/components/ui/Avatar'
 import { DomainBadge } from '@/components/ui/Badge'
 import { Candidate } from '@/types'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { candidatesApi } from '@/lib/api'
 
 const DOMAINS = ['tech', 'sales', 'marketing', 'finance', 'hr', 'operations']
 const FILTER_DOMAINS = ['', ...DOMAINS]
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8010'
+
+type Tab = 'approved' | 'pending'
 
 export default function CandidatesPage() {
   const dispatch = useAppDispatch()
@@ -30,9 +32,51 @@ export default function CandidatesPage() {
   const modalPayload = useAppSelector(selectModalPayload)
   const searchTimer = useRef<NodeJS.Timeout>()
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('approved')
+  const [pending, setPending] = useState<Candidate[]>([])
+  const [pendingLoading, setPendingLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => { dispatch(fetchCandidates()) }, [dispatch])
+
+  useEffect(() => {
+    if (activeTab === 'pending') fetchPending()
+  }, [activeTab])
+
+  const fetchPending = async () => {
+    setPendingLoading(true)
+    try {
+      const res = await candidatesApi.getPending()
+      const data = res.data?.data || res.data || []
+      setPending(Array.isArray(data) ? data : [])
+    } catch {
+      setPending([])
+    } finally {
+      setPendingLoading(false)
+    }
+  }
+
+  const handleApprove = async (id: number) => {
+    setActionLoading(id)
+    try {
+      await candidatesApi.approve(id)
+      setPending(prev => prev.filter(c => c.id !== id))
+      dispatch(fetchCandidates()) // refresh approved list
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleReject = async (id: number) => {
+    setActionLoading(id)
+    try {
+      await candidatesApi.reject(id)
+      setPending(prev => prev.filter(c => c.id !== id))
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   const handleSearch = (v: string) => {
     clearTimeout(searchTimer.current)
@@ -44,9 +88,9 @@ export default function CandidatesPage() {
     dispatch(closeModal())
   }
 
-  const handleView = (canditate: Candidate) => {
-    dispatch(setSelectedCandidate(candidates))
-    router.push(`/candidates/${canditate.id}`)
+  const handleView = (c: Candidate) => {
+    dispatch(setSelectedCandidate(c))  // ✅ fixed: pass c not candidates
+    router.push(`/candidates/${c.id}`)
   }
 
   return (
@@ -62,6 +106,44 @@ export default function CandidatesPage() {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: '#EDF0F7' }}>
+        <button
+          onClick={() => setActiveTab('approved')}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          style={activeTab === 'approved' ? {
+            background: '#FFFFFF',
+            color: '#0F1729',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+          } : { color: '#6B7A99' }}
+        >
+          <Users size={14} />
+          Approved
+          <span className="text-xs px-1.5 py-0.5 rounded-md"
+            style={{ background: activeTab === 'approved' ? 'rgba(30,109,219,0.1)' : 'rgba(0,0,0,0.06)', color: activeTab === 'approved' ? '#1e6ddb' : '#9BAABF' }}>
+            {candidates.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab('pending')}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          style={activeTab === 'pending' ? {
+            background: '#FFFFFF',
+            color: '#0F1729',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+          } : { color: '#6B7A99' }}
+        >
+          <Clock size={14} />
+          Pending Review
+          {pending.length > 0 && (
+            <span className="text-xs px-1.5 py-0.5 rounded-md"
+              style={{ background: 'rgba(245,158,11,0.15)', color: '#D97706' }}>
+              {pending.length}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* Error banner */}
       {error && (
         <div className="flex items-center gap-3 p-4 rounded-xl mb-6"
@@ -72,57 +154,78 @@ export default function CandidatesPage() {
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex gap-10 mb-6">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} />
-          <input
-            className="input-field pl-9"
-            placeholder="Search by name or position..."
-            onChange={e => handleSearch(e.target.value)}
-          />
-        </div>
-        <div className="relative">
-          <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} />
-          <select
-            className="input-field pl-9 pr-4"
-            style={{ width: 180 }}
-            value={filters.domain}
-            onChange={e => dispatch(setFilters({ domain: e.target.value }))}
-          >
-            {FILTER_DOMAINS.map(d => (
-              <option key={d} value={d}>{d ? d.charAt(0).toUpperCase() + d.slice(1) : 'All Domains'}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+      {/* ── Approved Tab ── */}
+      {activeTab === 'approved' && (
+        <>
+          <div className="flex gap-3 mb-6">
+            <div className="relative flex-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} />
+              <input className="input-field pl-9" placeholder="Search by name or position..."
+                onChange={e => handleSearch(e.target.value)} />
+            </div>
+            <div className="relative">
+              <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} />
+              <select className="input-field pl-9 pr-4" style={{ width: 180 }}
+                value={filters.domain} onChange={e => dispatch(setFilters({ domain: e.target.value }))}>
+                {FILTER_DOMAINS.map(d => (
+                  <option key={d} value={d}>{d ? d.charAt(0).toUpperCase() + d.slice(1) : 'All Domains'}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-      {/* Candidate list */}
-      {loading && candidates.length === 0 ? (
-        <SkeletonList count={5} />
-      ) : candidates.length === 0 ? (
-        <div className="card p-16 text-center">
-          <FileText size={40} className="mx-auto mb-4" style={{ color: '#D1D9E6' }} />
-          <p style={{ color: '#9BAABF' }}>No candidates yet. Upload a CV to get started.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {candidates.map((c: Candidate) => (
-            <CandidateRow
-              key={c.id}
-              candidate={c}
-              onDelete={() => dispatch(openModal({ type: 'deleteCandidate', payload: c }))}
-              onView={() => window.open(`${API_BASE}/api/candidates/${c.id}/preview`, '_blank')}
-              onTap={() => handleView(c)}
-            />
-          ))}
-        </div>
+          {loading && candidates.length === 0 ? (
+            <SkeletonList count={5} />
+          ) : candidates.length === 0 ? (
+            <div className="card p-16 text-center">
+              <FileText size={40} className="mx-auto mb-4" style={{ color: '#D1D9E6' }} />
+              <p style={{ color: '#9BAABF' }}>No candidates yet. Upload a CV to get started.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {candidates.map((c: Candidate) => (
+                <CandidateRow
+                  key={c.id}
+                  candidate={c}
+                  onDelete={() => dispatch(openModal({ type: 'deleteCandidate', payload: c }))}
+                  onView={() => window.open(`${API_BASE}/api/candidates/${c.id}/preview`, '_blank')}
+                  onTap={() => handleView(c)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Pending Tab ── */}
+      {activeTab === 'pending' && (
+        <>
+          {pendingLoading ? (
+            <SkeletonList count={3} />
+          ) : pending.length === 0 ? (
+            <div className="card p-16 text-center">
+              <Clock size={40} className="mx-auto mb-4" style={{ color: '#D1D9E6' }} />
+              <p style={{ color: '#9BAABF' }}>No pending applications.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {pending.map((c: Candidate) => (
+                <PendingRow
+                  key={c.id}
+                  candidate={c}
+                  actionLoading={actionLoading === c.id}
+                  onApprove={() => handleApprove(c.id)}
+                  onReject={() => handleReject(c.id)}
+                  onView={() => window.open(`${API_BASE}/api/candidates/${c.id}/preview`, '_blank')}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Upload CV Modal */}
-      {showUploadModal && (
-        <UploadModal onClose={() => setShowUploadModal(false)} />
-      )}
+      {showUploadModal && <UploadModal onClose={() => setShowUploadModal(false)} />}
 
       {/* Delete Modal */}
       {activeModal === 'deleteCandidate' && modalPayload && (
@@ -147,13 +250,76 @@ export default function CandidatesPage() {
   )
 }
 
+// ─── Pending Row ───────────────────────────────────────
+function PendingRow({ candidate: c, onApprove, onReject, onView, actionLoading }: {
+  candidate: Candidate
+  onApprove: () => void
+  onReject: () => void
+  onView: () => void
+  actionLoading: boolean
+}) {
+  return (
+    <div className="card p-4 flex items-center gap-4">
+      <Avatar name={c.name || 'Unknown'} size={44} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <p className="font-semibold text-sm" style={{ color: '#0F1729' }}>{c.name || 'Unknown'}</p>
+          {c.domain && <DomainBadge domain={c.domain} />}
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+            style={{ background: 'rgba(245,158,11,0.1)', color: '#D97706', border: '1px solid rgba(245,158,11,0.2)' }}>
+            Self Applied
+          </span>
+        </div>
+        <p className="text-xs" style={{ color: '#6B7A99' }}>{c.email}</p>
+        {c.position && (
+          <p className="text-xs" style={{ color: '#9BAABF' }}>
+            {c.position} · {c.exp_years ?? 0}yr exp
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        {/* Preview CV */}
+        <button onClick={onView}
+          className="p-2 rounded-lg transition-all"
+          style={{ color: '#9BAABF' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#1e6ddb'; e.currentTarget.style.background = 'rgba(30,109,219,0.08)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#9BAABF'; e.currentTarget.style.background = 'transparent' }}
+          title="Preview CV">
+          <Eye size={16} />
+        </button>
+
+        {/* Reject */}
+        <button onClick={onReject} disabled={actionLoading}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          style={{ background: 'rgba(239,68,68,0.06)', color: '#DC2626', border: '1px solid rgba(239,68,68,0.15)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.12)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.06)')}>
+          {actionLoading ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={13} />}
+          Reject
+        </button>
+
+        {/* Approve */}
+        <button onClick={onApprove} disabled={actionLoading}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          style={{ background: 'rgba(34,197,94,0.08)', color: '#16A34A', border: '1px solid rgba(34,197,94,0.2)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(34,197,94,0.15)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(34,197,94,0.08)')}>
+          {actionLoading ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle size={13} />}
+          Approve
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Upload Modal ──────────────────────────────────────
 function UploadModal({ onClose }: { onClose: () => void }) {
   const dispatch = useAppDispatch()
   const loading = useAppSelector(selectCandidatesLoading)
   const fileRef = useRef<HTMLInputElement>(null)
   const [domain, setDomain] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('')  // ✅ fixed separate state
   const [file, setFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [dragOver, setDragOver] = useState(false)
@@ -171,12 +337,11 @@ function UploadModal({ onClose }: { onClose: () => void }) {
   const validate = () => {
     const e: Record<string, string> = {}
     if (!domain) e.domain = 'Please select a domain'
-    if (!domain) e.domain = 'Please enter your email'
+    if (!email) e.email = 'Please enter an email'  // ✅ fixed
     if (!file) e.file = 'Please select a CV file'
     setErrors(e)
     return Object.keys(e).length === 0
   }
-
 
   const handleSubmit = async () => {
     if (!validate()) return
@@ -187,7 +352,6 @@ function UploadModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-panel p-6" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold" style={{ color: '#0F1729' }}>Upload CV</h3>
@@ -201,16 +365,13 @@ function UploadModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-4">
-          {/* Domain dropdown */}
+          {/* Domain */}
           <div>
             <label className="text-xs font-medium mb-1.5 block" style={{ color: '#6B7A99' }}>
               Candidate Domain <span style={{ color: '#DC2626' }}>*</span>
             </label>
-            <select
-              className="input-field"
-              value={domain}
-              onChange={e => { setDomain(e.target.value); setErrors(prev => ({ ...prev, domain: '' })) }}
-            >
+            <select className="input-field" value={domain}
+              onChange={e => { setDomain(e.target.value); setErrors(prev => ({ ...prev, domain: '' })) }}>
               <option value="">Select a domain...</option>
               {DOMAINS.map(d => (
                 <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
@@ -219,17 +380,15 @@ function UploadModal({ onClose }: { onClose: () => void }) {
             {errors.domain && <p className="text-red-500 text-xs mt-1">{errors.domain}</p>}
           </div>
 
+          {/* Email — ✅ fixed value and onChange */}
           <div>
             <label className="text-xs font-medium mb-1.5 block" style={{ color: '#6B7A99' }}>
               Candidate Email <span style={{ color: '#DC2626' }}>*</span>
             </label>
-            <input
-              name='email'
-              className="input-field"
-              value={domain}
-              onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })) }}
-            >
-            </input>
+            <input className="input-field" placeholder="candidate@email.com"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })) }} />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
           {/* File drop zone */}
@@ -258,13 +417,10 @@ function UploadModal({ onClose }: { onClose: () => void }) {
                     <p className="text-sm font-medium truncate max-w-[220px]" style={{ color: '#0F1729' }}>{file.name}</p>
                     <p className="text-xs" style={{ color: '#9BAABF' }}>{(file.size / 1024).toFixed(1)} KB</p>
                   </div>
-                  <button
-                    onClick={e => { e.stopPropagation(); setFile(null) }}
-                    className="ml-2 transition-colors"
-                    style={{ color: '#9BAABF' }}
+                  <button onClick={e => { e.stopPropagation(); setFile(null) }}
+                    className="ml-2 transition-colors" style={{ color: '#9BAABF' }}
                     onMouseEnter={e => (e.currentTarget.style.color = '#DC2626')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#9BAABF')}
-                  >
+                    onMouseLeave={e => (e.currentTarget.style.color = '#9BAABF')}>
                     <X size={16} />
                   </button>
                 </div>
@@ -277,13 +433,8 @@ function UploadModal({ onClose }: { onClose: () => void }) {
                   <p className="text-xs mt-1" style={{ color: '#9BAABF' }}>PDF only · Max 10MB</p>
                 </>
               )}
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={e => handleFileChange(e.target.files?.[0] || null)}
-              />
+              <input ref={fileRef} type="file" accept=".pdf" className="hidden"
+                onChange={e => handleFileChange(e.target.files?.[0] || null)} />
             </div>
             {errors.file && <p className="text-red-500 text-xs mt-1">{errors.file}</p>}
           </div>
@@ -296,7 +447,6 @@ function UploadModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 justify-end mt-6">
           <button className="btn-secondary" onClick={onClose}>Cancel</button>
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
@@ -327,7 +477,7 @@ function CandidateRow({ candidate: c, onDelete, onView, onTap }: {
   return (
     <div className="card p-4 flex items-center gap-4">
       <Avatar name={c.name || 'Unknown'} size={44} />
-      <div className="flex-1 min-w-0" onClick={onTap}>
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={onTap}>
         <div className="flex items-center gap-2 mb-1">
           <p className="font-semibold text-sm" style={{ color: '#0F1729' }}>{c.name || 'Unknown'}</p>
           {c.domain && <DomainBadge domain={c.domain} />}
@@ -335,7 +485,7 @@ function CandidateRow({ candidate: c, onDelete, onView, onTap }: {
         <p className="text-xs" style={{ color: '#6B7A99' }}>{c.email}</p>
         {c.position && (
           <p className="text-xs" style={{ color: '#9BAABF' }}>
-            {c.position} · {c.expYears ?? 0}yr exp
+            {c.position} · {c.exp_years ?? 0}yr exp
           </p>
         )}
       </div>
@@ -348,24 +498,18 @@ function CandidateRow({ candidate: c, onDelete, onView, onTap }: {
         ))}
       </div>
       <div className="flex items-center gap-1">
-        <button
-          onClick={onView}
-          className="p-2 rounded-lg transition-all"
-          style={{ color: '#9BAABF' }}
+        <button onClick={onView}
+          className="p-2 rounded-lg transition-all" style={{ color: '#9BAABF' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#1e6ddb'; e.currentTarget.style.background = 'rgba(30,109,219,0.08)' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#9BAABF'; e.currentTarget.style.background = 'transparent' }}
-          title="Preview CV"
-        >
+          title="Preview CV">
           <Eye size={16} />
         </button>
-        <button
-          onClick={onDelete}
-          className="p-2 rounded-lg transition-all"
-          style={{ color: '#9BAABF' }}
+        <button onClick={onDelete}
+          className="p-2 rounded-lg transition-all" style={{ color: '#9BAABF' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#DC2626'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#9BAABF'; e.currentTarget.style.background = 'transparent' }}
-          title="Delete"
-        >
+          title="Delete">
           <Trash2 size={16} />
         </button>
       </div>

@@ -38,33 +38,59 @@ export const authApi = {
     api.post('/api/auth/register', { username, email, password, role }),
 }
 
-
-
 // ─── Candidates ──────────────────────────────────────
-
 export const candidatesApi = {
   getAll: () => api.get('/api/candidates'),
   getById: (id: number) => api.get(`/api/candidates/${id}`),
+
+  getPending: () => api.get('/api/candidates/pending'),
+  approve: (id: number) => api.put(`/api/candidates/${id}/approve`),
+  reject: (id: number) => api.put(`/api/candidates/${id}/reject`),
+
   upload: (file: File, domain: string, email: string) => {
     const form = new FormData()
     form.append('file', file)
-    form.append('domain',domain)
+    form.append('domain', domain)
     form.append('email', email)
     return api.post('/api/candidates/upload', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+
   update: (data: {
-    id : number,
-    domain : string,
-    email : string,
-    expYears : number,
-    name : string,
-    phone : string,
-    position : string,
-  })=> api.patch(`/api/candidaites/${data.id}`,data),
+    id: number
+    domain: string
+    email: string
+    exp_years: number
+    name: string
+    phone: string
+    position: string
+  }) => api.patch(`/api/candidates/${data.id}`, data), // ✅ fixed typo: candidaites → candidates
+
   delete: (id: number) => api.delete(`/api/candidates/${id}`),
   previewUrl: (id: number) => `${API_BASE}/api/candidates/${id}/preview`,
+
+  // ─── Public (no auth) ───────────────────
+  apply: (file: File, data: {
+    name: string
+    email: string
+    phone: string
+    domain: string
+    position: string
+    exp_years: number
+  }) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('name', data.name)
+    form.append('email', data.email)
+    form.append('phone', data.phone)
+    form.append('domain', data.domain)
+    form.append('position', data.position)
+    form.append('exp_years', String(data.exp_years))
+    return api.post('/api/public/apply', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 }
 
 // ─── Job Descriptions ─────────────────────────────────
@@ -83,11 +109,13 @@ export const jobsApi = {
 }
 
 // ─── Chat ─────────────────────────────────────────────
-
 export const chatApi = {
   send: (message: string, jdId?: number) =>
     api.post('/api/chat', { message, jd_id: jdId ?? null }),
   getHistory: () => api.get('/api/chat/history'),
   getJobHistory: (jdId: number) => api.get(`/api/chat/history/${jdId}`),
+  getCandidateHistory: (candidateId: number) => api.get(`/api/chat/history/candidate/${candidateId}`), // ← add
+  sendCandidate: (message: string, candidateId: number) =>                                             // ← add
+    api.post('/api/chat', { message, candidate_id: candidateId }),
   clearHistory: () => api.delete('/api/chat/history'),
 }

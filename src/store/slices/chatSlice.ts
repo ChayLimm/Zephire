@@ -17,12 +17,12 @@ const initialState: ChatState = {
 
 export const fetchChatHistory = createAsyncThunk(
   'chat/fetchHistory',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await chatApi.getHistory()
-      return res.data.data
+      return res.data?.data || []  
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to load history')
+      return []  
     }
   }
 )
@@ -33,7 +33,7 @@ export const sendMessage = createAsyncThunk(
     try {
       dispatch(setTyping(true))
       const res = await chatApi.send(message, jdId)
-      return res.data.data
+      return res.data?.data || res.data  // ← handle both wrapped and unwrapped
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Failed to send message'
       dispatch(addNotification({ id: Date.now().toString(), type: 'error', message: msg }))
@@ -46,12 +46,13 @@ export const sendMessage = createAsyncThunk(
 
 export const clearHistory = createAsyncThunk(
   'chat/clearHistory',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch }) => {
     try {
       await chatApi.clearHistory()
-      dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Chat history cleared' }))
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to clear history')
+      dispatch(clearMessages())
+      dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Chat cleared' }))
+    } catch {
+      dispatch(addNotification({ id: Date.now().toString(), type: 'error', message: 'Failed to clear chat' }))
     }
   }
 )

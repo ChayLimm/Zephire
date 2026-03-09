@@ -43,6 +43,10 @@ export default function AssistantPage() {
     }
   }
 
+  const handleClear = () => {
+    dispatch(clearHistory())
+  }
+
   return (
     <div className="flex flex-col h-screen" style={{ background: '#F4F6FA' }}>
       {/* Header */}
@@ -57,8 +61,8 @@ export default function AssistantPage() {
             <p className="text-xs" style={{ color: '#9BAABF' }}>Ask anything about your candidates</p>
           </div>
         </div>
-        {messages.length > 0 && (
-          <button onClick={() => dispatch(clearHistory())} className="btn-secondary text-xs py-2 px-3">
+       {messages.length > 0 && (
+          <button onClick={handleClear} className="btn-secondary text-xs py-2 px-3">
             <Trash2 size={13} /> Clear
           </button>
         )}
@@ -176,7 +180,7 @@ function EmptyState({ onSuggest }: { onSuggest: (msg: string) => void }) {
         style={{ background: 'rgba(30,109,219,0.08)', border: '1px solid rgba(30,109,219,0.15)' }}>
         <Bot size={28} style={{ color: '#1e6ddb' }} />
       </div>
-      <h2 className="text-lg font-semibold mb-2" style={{ color: '#0F1729' }}>Ask about your candidates</h2>
+      <h2 className="text-lg font-semibold mb-2" style={{ color: '#0F1729' }}>Hello! I am Som</h2>
       <p className="text-sm mb-8 max-w-sm" style={{ color: '#6B7A99' }}>
         I can filter, search, and analyze all your candidate data. Try one of these:
       </p>

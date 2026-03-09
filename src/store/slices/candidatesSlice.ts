@@ -56,7 +56,7 @@ export const uploadCandidate = createAsyncThunk(
 
 export const updateCandidate = createAsyncThunk(
   'candidates/update',
-  async(data:{ id: number; domain: string; email: string; expYears: number; name: string; phone: string; position: string; },{dispatch, rejectWithValue})=>{
+  async(data:{ id: number; domain: string; email: string; exp_years: number; name: string; phone: string; position: string; },{dispatch, rejectWithValue})=>{
     try{
       dispatch(setLoading(true))
       const res = await candidatesApi.update(data)

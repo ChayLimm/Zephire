@@ -20,6 +20,8 @@ export default function JobDetailPage() {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
+ 
+
   useEffect(() => {
     setLoading(true)
     jobsApi.getById(Number(id))
@@ -113,7 +115,7 @@ export default function JobDetailPage() {
             <p className="text-sm" style={{ color: '#9BAABF' }}>No candidates matched.</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div  className="space-y-2">
             {[...matchResults]
               .sort((a: any, b: any) => (b.match_score || b.matchScore) - (a.match_score || a.matchScore))
               .map((r: any, i: number) => (

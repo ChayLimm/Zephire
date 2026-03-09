@@ -5,7 +5,6 @@ export interface User {
   role: 'ADMIN' | 'HR'
   createdAt: string
 }
-
 export interface Candidate {
   id: number
   name: string
@@ -13,15 +12,16 @@ export interface Candidate {
   phone: string
   domain: string
   position: string
-  expYears: number
+  exp_years: number       
   skills: string[]
   stack: string[]
-  fileName: string
-  cvJson: string
-  uploadedAt: string
-  uploadedBy: string
+  file_name: string        
+  cv_json: string          
+  uploaded_at: string      
+  uploaded_by: string      
+  source: string
+  status: string
 }
-
 export interface JobDescription {
   id: number
   title: string
