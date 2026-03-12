@@ -67,7 +67,7 @@ export default function JobChat({ jobId, jobTitle }: { jobId: number; jobTitle: 
             <Bot size={15} style={{ color: '#1e6ddb' }} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold" style={{ color: '#0F1729' }}>AI Assistant</p>
+            <p className="text-sm font-semibold" style={{ color: '#0F1729' }}>Sok</p>
             <p className="text-xs truncate" style={{ color: '#9BAABF' }}>Scoped to: {jobTitle}</p>
           </div>
         </div>

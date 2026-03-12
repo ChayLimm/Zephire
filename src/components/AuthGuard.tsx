@@ -40,13 +40,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const isPublic = PUBLIC_ROUTES.includes(pathname)
 
-  // ✅ Public pages — no sidebar, no auth required
   if (isPublic) return <>{children}</>
 
-  // ✅ Not authenticated on protected route — render nothing
   if (!authenticated) return null
 
-  // ✅ Authenticated — show sidebar
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

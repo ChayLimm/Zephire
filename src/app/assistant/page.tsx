@@ -57,7 +57,7 @@ export default function AssistantPage() {
             <Bot size={18} style={{ color: '#1e6ddb' }} />
           </div>
           <div>
-            <h1 className="font-semibold text-sm" style={{ color: '#0F1729' }}>AI Assistant</h1>
+            <h1 className="font-semibold text-sm" style={{ color: '#0F1729' }}>Sok </h1>
             <p className="text-xs" style={{ color: '#9BAABF' }}>Ask anything about your candidates</p>
           </div>
         </div>
@@ -180,7 +180,7 @@ function EmptyState({ onSuggest }: { onSuggest: (msg: string) => void }) {
         style={{ background: 'rgba(30,109,219,0.08)', border: '1px solid rgba(30,109,219,0.15)' }}>
         <Bot size={28} style={{ color: '#1e6ddb' }} />
       </div>
-      <h2 className="text-lg font-semibold mb-2" style={{ color: '#0F1729' }}>Hello! I am Som</h2>
+      <h2 className="text-lg font-semibold mb-2" style={{ color: '#0F1729' }}>Hello! I am Sok</h2>
       <p className="text-sm mb-8 max-w-sm" style={{ color: '#6B7A99' }}>
         I can filter, search, and analyze all your candidate data. Try one of these:
       </p>
