@@ -42,7 +42,7 @@ export default function CandidateChat({ candidateId, candidateName }: { candidat
         } catch {
             setMessages(prev => [...prev, {
                 id: Date.now(), role: 'ASSISTANT',
-                message: 'Sorry, something went wrong.',
+                message: 'Sorry, something went wrong, please try again.',
             }])
         } finally {
             setIsTyping(false)
