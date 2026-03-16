@@ -16,30 +16,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/assistant/page.js"
     ],
-    "/login/page": [
+    "/jobs/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/jobs/page.js"
     ],
     "/candidates/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/candidates/page.js"
     ],
-    "/jobs/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/jobs/page.js"
+      "static/chunks/app/login/page.js"
+    ],
+    "/candidates/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/candidates/[id]/page.js"
     ],
     "/jobs/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/jobs/[id]/page.js"
     ],
-    "/candidates/[id]/page": [
+    "/emails/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/candidates/[id]/page.js"
+      "static/chunks/app/emails/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

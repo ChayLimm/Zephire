@@ -35,7 +35,7 @@ export default function JobsPage() {
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#0F1729' }}>Job Descriptions</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#0F1729' }}>Jobs</h1>
           <p className="text-sm mt-1" style={{ color: '#6B7A99' }}>Create jobs and find matching candidates</p>
         </div>
         <button onClick={() => dispatch(openModal({ type: 'addJob' }))} className="btn-primary">

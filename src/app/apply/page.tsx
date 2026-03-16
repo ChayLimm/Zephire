@@ -101,12 +101,9 @@ export default function ApplyPage() {
       {/* Header */}
       <div className="bg-white border-b px-6 py-4" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #1e6ddb, #4f9ef8)' }}>
-            <Sparkles size={16} className="text-white" />
-          </div>
+         
           <span className="text-lg font-bold" style={{ fontFamily: 'Sora, sans-serif', color: '#0F1729' }}>
-            Hire<span style={{ color: '#1e6ddb' }}>nova</span>
+            Sok<span style={{ color: '#1e6ddb' }}>.Hr</span>
           </span>
         </div>
       </div>

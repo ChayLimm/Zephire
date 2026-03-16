@@ -4,7 +4,7 @@ const SUGGESTIONS = [
   'Who is the best match?',
   'Who has the most relevant skills?',
   'Summarize top candidates',
-  'Who has gaps in experience?',
+  'Generate a congratulation for shortlisted canidate and book meeting schedule?',
 ]
 export default function ChatEmptyState({ onSuggest }: { onSuggest: (s: string) => void }) {
   return (

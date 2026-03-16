@@ -4,6 +4,7 @@ import jobsReducer from './slices/jobsSlice'
 import chatReducer from './slices/chatSlice'
 import uiReducer from './slices/uiSlice'
 import authReducer from './slices/authSlice'
+import emailReducer from './slices/emailSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     chat: chatReducer,
     ui: uiReducer,
     auth: authReducer,
+    email: emailReducer, 
   },
 })
 

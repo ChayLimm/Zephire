@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Users, Briefcase, Bot, LogOut, Sparkles } from 'lucide-react'
+import { Users, Briefcase, Bot, LogOut, Sparkles,Mail } from 'lucide-react'
 import { useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
 import clsx from 'clsx'
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/candidates', label: 'Candidates', icon: Users },
   { href: '/jobs', label: 'Job Descriptions', icon: Briefcase },
   { href: '/assistant', label: 'AI Assistant', icon: Bot },
+  { href: '/emails',     label: 'Emails',           icon: Mail      },
 ]
 
 export default function Sidebar() {

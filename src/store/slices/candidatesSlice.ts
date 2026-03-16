@@ -38,10 +38,23 @@ export const fetchCandidates = createAsyncThunk(
 
 export const uploadCandidate = createAsyncThunk(
   'candidates/upload',
-  async ({ file, domain, email }: { file: File; domain: string, email: string }, { dispatch, rejectWithValue }) => {
+  async (
+    { file, data }: {
+      file: File;
+      data: {
+        name: string;
+        email: string;
+        phone: string;
+        domain: string;
+        position: string;
+        exp_years: number;
+      }
+    },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(setLoading(true))
-      const res = await candidatesApi.upload(file, domain, email)
+      const res = await candidatesApi.upload(file, data)  // ✅ pass data object
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'CV uploaded and processed!' }))
       return res.data.data
     } catch (err: any) {

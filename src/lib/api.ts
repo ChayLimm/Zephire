@@ -38,6 +38,12 @@ export const authApi = {
     api.post('/api/auth/register', { username, email, password, role }),
 }
 
+// //-- Email
+// export const emailApi = {
+//   send: (subject : string, context : string)=>
+
+// }
+
 // ─── Candidates ──────────────────────────────────────
 export const candidatesApi = {
   getAll: () => api.get('/api/candidates'),
@@ -47,11 +53,22 @@ export const candidatesApi = {
   approve: (id: number) => api.put(`/api/candidates/${id}/approve`),
   reject: (id: number) => api.put(`/api/candidates/${id}/reject`),
 
-  upload: (file: File, domain: string, email: string) => {
+  upload: (file: File, data: {
+    name: string
+    email: string
+    phone: string
+    domain: string
+    position: string
+    exp_years: number
+  }) => {
     const form = new FormData()
     form.append('file', file)
-    form.append('domain', domain)
-    form.append('email', email)
+    form.append('name', data.name)
+    form.append('email', data.email)
+    form.append('phone', data.phone)
+    form.append('domain', data.domain)
+    form.append('position', data.position)
+    form.append('exp_years', String(data.exp_years))
     return api.post('/api/candidates/upload', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
@@ -118,4 +135,22 @@ export const chatApi = {
   sendCandidate: (message: string, candidateId: number) =>                                             // ← add
     api.post('/api/chat', { message, candidate_id: candidateId }),
   clearHistory: () => api.delete('/api/chat/history'),
+}
+
+
+export const emailApi = {
+  sendBulk: (payload: {
+    emails: {
+      candidateId: number
+      email: string
+      subject: string
+      body: string
+      type: string
+      meetingDate?: string
+      meetingTime?: string
+      meetingLocation?: string
+    }[]
+  }) => api.post('/api/email/send-bulk', payload),
+  getAll: () => api.get('/api/email'),
+  updateStatus: (id: number, status: string) => api.patch(`/api/email/${id}/status`, { status }),
 }

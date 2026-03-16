@@ -74,3 +74,22 @@ export interface AuthResponse {
   type: string
   expires_in: number
 }
+
+
+// types/index.ts - add this
+export interface Email {
+  id: number
+  toEmail: string
+  subject: string
+  body: string
+  type: 'SHORTLIST' | 'MEETING' | 'REJECTION' | 'CUSTOM'
+  status: 'SENT' | 'FAILED'
+  sentAt: string
+  meetingDate?: string
+  meetingTime?: string
+  meetingLocation?: string
+  candidate?: {
+    id: number
+    name: string
+  }
+}
