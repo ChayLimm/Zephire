@@ -54,7 +54,7 @@ export const uploadCandidate = createAsyncThunk(
   ) => {
     try {
       dispatch(setLoading(true))
-      const res = await candidatesApi.upload(file, data)  // ✅ pass data object
+      const res = await candidatesApi.upload(file, data) 
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'CV uploaded and processed!' }))
       return res.data.data
     } catch (err: any) {
@@ -66,18 +66,21 @@ export const uploadCandidate = createAsyncThunk(
     }
   }
 )
-
-export const updateCandidate = createAsyncThunk(
+export const updateCandidate = createAsyncThunk<Candidate, 
+  { id: number; domain: string; email: string; exp_years: number; name: string; phone: string; position: string }  // argument type
+>(
   'candidates/update',
-  async(data:{ id: number; domain: string; email: string; exp_years: number; name: string; phone: string; position: string; },{dispatch, rejectWithValue})=>{
-    try{
+  async (data, { dispatch, rejectWithValue }) => {
+    try {
       dispatch(setLoading(true))
       const res = await candidatesApi.update(data)
+      dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Candidate updated!' }))
       return res.data.data
-    }catch(err:any){
+    } catch (err: any) {
       const msg = err.response?.data?.message || 'Failed to update candidate'
       dispatch(addNotification({ id: Date.now().toString(), type: 'error', message: msg }))
-    }finally {
+      return rejectWithValue(msg)
+    } finally {
       dispatch(setLoading(false))
     }
   }
@@ -125,6 +128,13 @@ const candidatesSlice = createSlice({
       .addCase(removeCandidate.fulfilled, (state, action) => {
         state.items = state.items.filter(c => c.id !== action.payload)
       })
+      .addCase(updateCandidate.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.items = state.items.map(c => 
+          c.id === action.payload.id ? action.payload : c
+        )
+      }
+    })
   },
 })
 

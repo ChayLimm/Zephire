@@ -1,9 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/assistant/page": "app/assistant/page.js",
-  "/candidates/[id]/page": "app/candidates/[id]/page.js",
-  "/jobs/[id]/page": "app/jobs/[id]/page.js",
   "/jobs/page": "app/jobs/page.js",
+  "/emails/page": "app/emails/page.js",
   "/candidates/page": "app/candidates/page.js",
-  "/emails/page": "app/emails/page.js"
+  "/candidates/[id]/page": "app/candidates/[id]/page.js",
+  "/jobs/[id]/page": "app/jobs/[id]/page.js"
 }

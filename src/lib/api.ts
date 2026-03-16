@@ -82,7 +82,19 @@ export const candidatesApi = {
     name: string
     phone: string
     position: string
-  }) => api.patch(`/api/candidates/${data.id}`, data), // ✅ fixed typo: candidaites → candidates
+  }) => {
+    const backendData = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      domain: data.domain,
+      position: data.position,
+      exp_years: data.exp_years  
+    }
+      return api.patch(`/api/candidates/${data.id}`, backendData, {
+      headers: { 'Content-Type': 'application/json' } 
+    })
+  },
 
   delete: (id: number) => api.delete(`/api/candidates/${id}`),
   previewUrl: (id: number) => `${API_BASE}/api/candidates/${id}/preview`,

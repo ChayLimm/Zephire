@@ -1,4 +1,5 @@
 'use client'
+import UploadModal from "@/components/candidates/UploadCandidate"
 import CandidateChat from "@/components/jobs/chat/CandidateChat"
 import Avatar from "@/components/ui/Avatar"
 import { DomainBadge } from "@/components/ui/Badge"
@@ -9,7 +10,7 @@ import { setSelectedCandidate } from "@/store/slices/candidatesSlice"
 import {
     ArrowLeft, Bot, Eye, Mail, Phone, Briefcase, Clock,
     Send, Sparkles, Loader2, X,
-    FileText
+    FileText,Edit
 } from "lucide-react"
 import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from "react"
@@ -20,6 +21,7 @@ export default function CandidateDetailPage() {
     const router = useRouter()
     const [candidate, setCandidate] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [showModal, setShowModal] = useState(false)
     const dispatch = useAppDispatch()
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8010'
 
@@ -57,7 +59,6 @@ export default function CandidateDetailPage() {
     return (
         <div className="flex h-screen overflow-hidden" style={{ background: '#F4F6FA' }}>
 
-            {/* ── LEFT: Candidate Info ── */}
             {/* ── LEFT: Candidate Info ── */}
             <div className="flex-1 overflow-y-auto p-6">
                 <button
@@ -106,10 +107,10 @@ export default function CandidateDetailPage() {
                             </div>
                         </div>
                         <button
-                            onClick={() => window.open(`${API_BASE}/api/candidates/${candidate.id}/preview`, '_blank')}
+                            onClick={() => setShowModal(true)}
                             className="btn-secondary text-xs py-2 px-3 flex-shrink-0"
                         >
-                            {/* <Eye size={13} /> Open CV */}
+                            <Edit size={13} /> Edit
                         </button>
                     </div>
                 </div>
@@ -182,7 +183,6 @@ export default function CandidateDetailPage() {
                 </div> */}
 
                 {/* CV Preview */}
-                {/* CV Preview */}
                 <div className="card p-5">
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold" style={{ color: '#0F1729' }}>CV Preview</h2>
@@ -226,6 +226,19 @@ export default function CandidateDetailPage() {
                 style={{ width: 400, borderLeft: '1px solid rgba(0,0,0,0.07)', background: '#FFFFFF' }}>
                 <CandidateChat candidateId={Number(id)} candidateName={candidate.name} />
             </div>
+       {showModal && (
+  <UploadModal
+    onClose={() => {
+      setShowModal(false)
+      candidatesApi.getById(Number(id)).then(res => {
+        const data = res.data?.data || res.data
+        setCandidate(data)
+      })
+    }}
+    candidate={candidate}
+  />
+)}
         </div>
+        
     )
 }
