@@ -852,9 +852,6 @@ video {
 .items-start{
   align-items: flex-start;
 }
-.items-end{
-  align-items: flex-end;
-}
 .items-center{
   align-items: center;
 }
@@ -866,9 +863,6 @@ video {
 }
 .justify-between{
   justify-content: space-between;
-}
-.gap-0{
-  gap: 0px;
 }
 .gap-1{
   gap: 0.25rem;
@@ -933,12 +927,6 @@ video {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.whitespace-nowrap{
-  white-space: nowrap;
-}
-.whitespace-pre-line{
-  white-space: pre-line;
 }
 .rounded{
   border-radius: 0.25rem;
@@ -1144,9 +1132,6 @@ video {
 }
 .pb-6{
   padding-bottom: 1.5rem;
-}
-.pl-8{
-  padding-left: 2rem;
 }
 .pl-9{
   padding-left: 2.25rem;

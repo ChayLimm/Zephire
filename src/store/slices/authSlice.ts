@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { authApi } from '@/lib/api'
 import { addNotification } from './uiSlice'
+import Cookies from 'js-cookie'
 
 interface AuthState {
   token: string | null
@@ -13,23 +14,17 @@ const initialState: AuthState = {
   loading: false,
   error: null,
 }
+
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(setLoading(true))
-            console.log('LOGIN PAYLOAD:', { email, password }) // ← add this
-
       const res = await authApi.login(email, password)
-      console.log('LOGIN RESPONSE:', res.data) // ← add this
-
-      // ✅ your backend returns directly, not wrapped in ApiResponse
       const token = res.data.access_token
-      localStorage.setItem('access_token', token)
-
       if (!token) throw new Error('No token received')
-
       localStorage.setItem('access_token', token)
+      Cookies.set('access_token', token, { expires: 7 })  // ✅ added
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Login successful!' }))
       return token
     } catch (err: any) {
@@ -48,14 +43,10 @@ export const register = createAsyncThunk(
     try {
       dispatch(setLoading(true))
       const res = await authApi.register(username, email, password, role)
-
-      // ✅ same fix for register
       const token = res.data.access_token
-
       if (!token) throw new Error('No token received')
-      
       localStorage.setItem('access_token', token)
-      console.log("done setting accesstoke");
+      Cookies.set('access_token', token, { expires: 7 })  // ✅ added
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Account created!' }))
       return token
     } catch (err: any) {
@@ -67,6 +58,7 @@ export const register = createAsyncThunk(
     }
   }
 )
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -76,6 +68,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null
       localStorage.removeItem('access_token')
+      Cookies.remove('access_token')  // ✅ added
     },
     clearError: (state) => { state.error = null },
   },

@@ -11,12 +11,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [checked, setChecked] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
 
+  const isPublic = PUBLIC_ROUTES.includes(pathname)
+
   useEffect(() => {
     const token = localStorage.getItem('access_token')
-    const isPublic = PUBLIC_ROUTES.includes(pathname)
 
     if (isPublic) {
-      // Already logged in + trying to visit /login → redirect to app
       if (token && pathname === '/login') {
         router.replace('/candidates')
         return
@@ -26,9 +26,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Protected route — no token → go to login
     if (!token) {
       router.replace('/login')
+      // ← don't return early without setChecked, causes infinite null
+      setChecked(true)
       return
     }
 
@@ -36,12 +37,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     setChecked(true)
   }, [pathname])
 
+  // Show nothing until check is done
   if (!checked) return null
-
-  const isPublic = PUBLIC_ROUTES.includes(pathname)
 
   if (isPublic) return <>{children}</>
 
+  // Not authenticated — show nothing while redirect happens
   if (!authenticated) return null
 
   return (
