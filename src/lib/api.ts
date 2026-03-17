@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8010'
 
@@ -18,17 +19,26 @@ api.interceptors.request.use((config) => {
 // api.ts - response interceptor
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
-    console.log('❌ Error:', error.config?.url, '| status:', error.response?.status)
-    if (error.response?.status === 401) {
-      console.log('🔴 401 triggered redirect — token was:', localStorage.getItem('access_token'))
+  async (error) => {
+    const originalRequest = error.config
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      console.log('🔄 401 received, retrying once...')
+      return api(originalRequest) // retry the same request once
+    }
+
+    // Only redirect if retry also fails
+    if (error.response?.status === 401 && originalRequest._retry) {
+      console.log('🔴 Retry also failed, redirecting to login')
       localStorage.removeItem('access_token')
+      Cookies.remove('access_token')
       window.location.href = '/login'
     }
+
     return Promise.reject(error)
   }
 )
-
 
 export default api
 
