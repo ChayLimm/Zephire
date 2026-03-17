@@ -6,27 +6,29 @@ const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
 })
-
-// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
+  console.log('📡', config.method?.toUpperCase(), config.url, '| token:', token ? '✅' : '❌ MISSING')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
 
-// Redirect to login on 401
+// api.ts - response interceptor
 api.interceptors.response.use(
   (res) => res,
   (error) => {
+    console.log('❌ Error:', error.config?.url, '| status:', error.response?.status)
     if (error.response?.status === 401) {
+      console.log('🔴 401 triggered redirect — token was:', localStorage.getItem('access_token'))
       localStorage.removeItem('access_token')
       window.location.href = '/login'
     }
     return Promise.reject(error)
   }
 )
+
 
 export default api
 
