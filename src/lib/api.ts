@@ -25,12 +25,15 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       console.log('🔄 401 received, retrying once...')
-      return api(originalRequest) // retry the same request once
+      
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      return api(originalRequest)
     }
 
     // Only redirect if retry also fails
     if (error.response?.status === 401 && originalRequest._retry) {
-      console.log('🔴 Retry also failed, redirecting to login')
+      console.log('Retry also failed, redirecting to login')
       localStorage.removeItem('access_token')
       Cookies.remove('access_token')
       window.location.href = '/login'
