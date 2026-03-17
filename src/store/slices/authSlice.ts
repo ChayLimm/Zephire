@@ -21,6 +21,9 @@ export const login = createAsyncThunk(
     try {
       dispatch(setLoading(true))
       const res = await authApi.login(email, password)
+      console.log('response:', res.data)
+      localStorage.setItem('access_token', res.data.access_token)
+      console.log('token set:', localStorage.getItem('access_token'))
       const token = res.data.access_token
       if (!token) throw new Error('No token received')
       localStorage.setItem('access_token', token)

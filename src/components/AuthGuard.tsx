@@ -15,6 +15,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
+    console.log('AuthGuard check — pathname:', pathname, 'token:', token)
 
     if (isPublic) {
       if (token && pathname === '/login') {
@@ -35,7 +36,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     setAuthenticated(true)
     setChecked(true)
-  }, [pathname])
+  }, [pathname, isPublic, router])
 
   // Show nothing until check is done
   if (!checked) return null
