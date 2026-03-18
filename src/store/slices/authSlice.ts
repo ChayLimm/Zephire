@@ -26,7 +26,7 @@ export const login = createAsyncThunk(
       const token = res.data.access_token
       if (!token) throw new Error('No token received')
       localStorage.setItem('access_token', token)
-      Cookies.set('access_token', token, { expires: 7 })  // ✅ added
+      Cookies.set('access_token', token, { expires: 7 }) 
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Login successful!' }))
       return token
     } catch (err: any) {
@@ -48,7 +48,7 @@ export const register = createAsyncThunk(
       const token = res.data.access_token
       if (!token) throw new Error('No token received')
       localStorage.setItem('access_token', token)
-      Cookies.set('access_token', token, { expires: 7 })  // ✅ added
+      Cookies.set('access_token', token, { expires: 7 }) 
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Account created!' }))
       return token
     } catch (err: any) {
@@ -70,7 +70,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null
       localStorage.removeItem('access_token')
-      Cookies.remove('access_token')  // ✅ added
+      Cookies.remove('access_token') 
     },
     clearError: (state) => { state.error = null },
   },
