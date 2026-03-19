@@ -187,7 +187,7 @@ export default function CandidateDetailPage() {
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold" style={{ color: '#0F1729' }}>CV Preview</h2>
                     <button
-                    onClick={() => window.open(`${API_BASE}/api/candidates/${candidate.id}/preview`, '_blank')}
+                    onClick={() => window.open(candidate.file_path, '_blank')}
                     className="flex items-center gap-1.5 text-xs font-medium"
                     style={{ color: '#1e6ddb' }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
@@ -198,7 +198,7 @@ export default function CandidateDetailPage() {
                 </div>
                 <div className="rounded-xl overflow-hidden border" style={{ borderColor: '#E0E7FF', height: 700 }}>
                     <object
-                    data={`${API_BASE}/api/candidates/${candidate.id}/preview`}
+                    data={candidate.file_path}
                     type="application/pdf"
                     className="w-full h-full"
                     >

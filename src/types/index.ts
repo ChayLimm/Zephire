@@ -21,6 +21,7 @@ export interface Candidate {
   uploaded_by: string      
   source: string
   status: string
+  file_path : string
 }
 export interface JobDescription {
   id: number

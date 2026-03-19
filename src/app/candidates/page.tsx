@@ -160,19 +160,20 @@ export default function CandidatesPage() {
         <>
           <div className="flex gap-3 mb-6">
            <div className="relative flex-1">
-              <Search 
-                size={16} 
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" 
-                style={{ color: '#9BAABF' }} 
-              />
+              
               <input 
                 className="input-field pl-9 w-full" 
                 placeholder="Search by name or position..."
                 onChange={e => handleSearch(e.target.value)} 
               />
+              <Search 
+                size={16} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" 
+                style={{ color: '#9BAABF' }} 
+              />
             </div>
             <div className="relative">
-              <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} />
+              {/* <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9BAABF' }} /> */}
               <select className="input-field pl-9 pr-4" style={{ width: 180 }}
                 value={filters.domain} onChange={e => dispatch(setFilters({ domain: e.target.value }))}>
                 {FILTER_DOMAINS.map(d => (
