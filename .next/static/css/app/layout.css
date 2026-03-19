@@ -1148,9 +1148,6 @@ video {
 .pt-3{
   padding-top: 0.75rem;
 }
-.pl-20{
-  padding-left: 5rem;
-}
 .text-left{
   text-align: left;
 }
@@ -1264,6 +1261,13 @@ video {
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+.text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+}
+.text-black\/50{
+  color: rgb(0 0 0 / 0.5);
 }
 .outline-none{
   outline: 2px solid transparent;
@@ -1456,6 +1460,10 @@ select.input-field option { background: #FFFFFF; color: #1A2035; }
 .hover\:text-slate-700:hover{
   --tw-text-opacity: 1;
   color: rgb(51 65 85 / var(--tw-text-opacity, 1));
+}
+.hover\:text-black:hover{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 .hover\:underline:hover{
   text-decoration-line: underline;

@@ -39,10 +39,10 @@ function Toast({ notification }: { notification: Notification }) {
       }}
     >
       <span className="mt-0.5">{icons[notification.type]}</span>
-      <p className="flex-1 text-sm text-slate-200">{notification.message}</p>
+      <p className="flex-1 text-sm text-black">{notification.message}</p>
       <button
         onClick={() => dispatch(removeNotification(notification.id))}
-        className="text-slate-500 hover:text-slate-300 transition-colors"
+        className="text-black/50 hover:text-black transition-colors"
       >
         <X size={14} />
       </button>

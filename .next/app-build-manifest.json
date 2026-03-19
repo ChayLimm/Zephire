@@ -21,6 +21,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/candidates/page.js"
     ],
+    "/emails/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/emails/page.js"
+    ],
     "/candidates/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -31,15 +36,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/jobs/page.js"
     ],
-    "/jobs/[id]/page": [
+    "/apply/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/jobs/[id]/page.js"
+      "static/chunks/app/apply/page.js"
     ],
-    "/emails/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/emails/page.js"
+      "static/chunks/app/login/page.js"
     ]
   }
 }
