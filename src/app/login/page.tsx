@@ -132,18 +132,21 @@ export default function LoginPage() {
     return Object.keys(e).length === 0
   }
 
-  const handleSubmit = async () => {
-    if (!validate()) return
-    let result: any
-    if (isRegister) {
-      result = await dispatch(register({ ...form }))
-    } else {
-      result = await dispatch(login({ email: form.email, password: form.password }))
-    }
-    if (result.meta.requestStatus === 'fulfilled') {
-      setTimeout(() => router.push('/candidates'), 100)
-    }
+ const handleSubmit = async () => {
+  if (!validate()) return
+  let result: any
+  if (isRegister) {
+    result = await dispatch(register({ ...form }))
+  } else {
+    result = await dispatch(login({ email: form.email, password: form.password }))
   }
+
+  if (result.meta.requestStatus === 'fulfilled') {
+    console.log('fulfilled! redirecting...')
+    console.log('router:', router)
+    router.push('/candidates')
+  }
+}
 
   return (
     <>

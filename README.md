@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ SokHR — Smart HR & Candidate Management
+# SokHR — Smart HR & Candidate Management
 
 **AI-powered HR assistant for intelligent candidate screening, job matching, and recruitment automation.**
 

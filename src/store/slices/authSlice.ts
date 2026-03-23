@@ -26,11 +26,17 @@ export const login = createAsyncThunk(
       const token = res.data.access_token
       if (!token) throw new Error('No token received')
       localStorage.setItem('access_token', token)
-      Cookies.set('access_token', token, { expires: 7 }) 
+      Cookies.set('access_token', token, { expires: 7 })
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Login successful!' }))
       return token
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || 'Login failed'
+      console.log('full error:', err.response)       // ← add
+      console.log('error data:', err.response?.data) // ← add
+      console.log('status:', err.response?.status)   // ← add
+      const msg = err.response?.data?.error
+        || err.response?.data?.message
+        || err.message
+        || 'Login failed'
       dispatch(addNotification({ id: Date.now().toString(), type: 'error', message: msg }))
       return rejectWithValue(msg)
     } finally {
@@ -38,7 +44,6 @@ export const login = createAsyncThunk(
     }
   }
 )
-
 export const register = createAsyncThunk(
   'auth/register',
   async ({ username, email, password, role }: { username: string; email: string; password: string; role: string }, { dispatch, rejectWithValue }) => {
@@ -47,12 +52,12 @@ export const register = createAsyncThunk(
       const res = await authApi.register(username, email, password, role)
       const token = res.data.access_token
       if (!token) throw new Error('No token received')
-      localStorage.setItem('access_token', token)
-      Cookies.set('access_token', token, { expires: 7 }) 
+      Cookies.set('access_token', token, { expires: 7 })
+      localStorage.setItem('access_token', token) 
       dispatch(addNotification({ id: Date.now().toString(), type: 'success', message: 'Account created!' }))
       return token
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || 'Registration failed'
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed'
       dispatch(addNotification({ id: Date.now().toString(), type: 'error', message: msg }))
       return rejectWithValue(msg)
     } finally {
@@ -70,7 +75,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null
       localStorage.removeItem('access_token')
-      Cookies.remove('access_token') 
+      Cookies.remove('access_token')
     },
     clearError: (state) => { state.error = null },
   },
